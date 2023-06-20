@@ -36,7 +36,7 @@ public class StatsController {
     @GetMapping("/stats")
     public List<ViewStats> getStats(@RequestParam String start,
                                     @RequestParam String end,
-                                    @RequestParam(required=false) String[] uris,
+                                    @RequestParam(required = false) String[] uris,
                                     @RequestParam(defaultValue = "false") boolean unique,
                                     HttpServletRequest request) {
         log.info("Получен запрос к эндпоинту: '{} {}', Строка параметров запроса: '{}'",
