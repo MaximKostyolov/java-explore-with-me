@@ -2,7 +2,7 @@ version: '3.1'
 services:
   stats-server:
     build:
-      context: ./ewm-stats
+      context: ./ewm-stats/stats-service
       dockerfile: dockerfile
     image: stats-server
     container_name: ewm-stats
