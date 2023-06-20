@@ -9,7 +9,7 @@ services:
     ports:
       - "9090:9090"
     depends_on:
-      - ewm-main-server
+      - ewm-service
       - stats-db
     environment:
       - EWN_SERVER_URL=http://server:8080
@@ -25,7 +25,7 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: iamroot
 
-  ewm-main-server:
+  ewm-service:
     build:
       context: ./ewm-main-service
       dockerfile: dockerfile
@@ -34,11 +34,11 @@ services:
     ports:
       - "8080:8080"
     depends_on:
-      - server-db
+      - ewm-db
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5442/ewm-main
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5433/ewm-main
 
-  server-db:
+  ewm-db:
     image: postgres:13.7-alpine
     container_name: server-db
     ports:

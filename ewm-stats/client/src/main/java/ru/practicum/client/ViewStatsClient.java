@@ -33,7 +33,7 @@ public class ViewStatsClient {
     }
 
     protected ResponseEntity<ViewStats> get(String path, @Nullable Map<String, Object> parameters) {
-        return makeAndSendRequest(HttpMethod.GET, path, parameters, null);
+        return makeAndSendRequest(HttpMethod.GET, path, parameters, new ViewStats());
     }
 
     private ResponseEntity<ViewStats> makeAndSendRequest(HttpMethod method, String path,
