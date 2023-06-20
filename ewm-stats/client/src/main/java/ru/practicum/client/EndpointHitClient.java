@@ -39,7 +39,7 @@ public class EndpointHitClient {
 
     private ResponseEntity<EndpointHit> makeAndSendRequest(HttpMethod method, String path,
                                                                @Nullable Map<String, Object> parameters,
-                                                               @Nullable EndpointHit body) {
+                                                               EndpointHit body) {
         HttpEntity<EndpointHit> requestEntity = new HttpEntity<>(body);
 
         ResponseEntity<EndpointHit> statsServerResponse;

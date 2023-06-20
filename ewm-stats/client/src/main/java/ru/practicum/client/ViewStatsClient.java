@@ -38,7 +38,7 @@ public class ViewStatsClient {
 
     private ResponseEntity<ViewStats> makeAndSendRequest(HttpMethod method, String path,
                                                            @Nullable Map<String, Object> parameters,
-                                                           @Nullable ViewStats body) {
+                                                           ViewStats body) {
         HttpEntity<ViewStats> requestEntity = new HttpEntity<>(body);
 
         ResponseEntity<ViewStats> statsServerResponse;
