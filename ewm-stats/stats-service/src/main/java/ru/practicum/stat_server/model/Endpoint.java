@@ -34,7 +34,7 @@ public class Endpoint {
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    @Column(name = "timestamp", nullable = false)
+    @Column(name = "created", nullable = false)
     private LocalDateTime timestamp;
 
 }
