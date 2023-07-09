@@ -16,7 +16,6 @@ import ru.practicum.ewmmainservice.compilations.repository.CompilationJpaReposit
 import ru.practicum.ewmmainservice.event.model.EventShortDto;
 import ru.practicum.ewmmainservice.event.service.EventServiceImpl;
 import ru.practicum.ewmmainservice.exception.NotFoundException;
-import ru.practicum.ewmmainservice.validator.Validator;
 
 import java.util.ArrayList;
 import java.util.List;

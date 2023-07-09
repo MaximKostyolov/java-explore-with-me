@@ -36,6 +36,7 @@ public interface EventJpaRepository extends JpaRepository<EventFullDto, Integer>
             "group by e.event_id", nativeQuery = true)
     List<EventFullDto> findEventToAdmin(List<Integer> users, List<Integer> categories, LocalDateTime startTime,
                                         LocalDateTime endTime, List<String> states, Pageable page);
+
     @Query(value = "select * from events e " +
             "where e.category_id = ?1", nativeQuery = true)
     List<EventFullDto> findByCategoryId(int categoryId);
@@ -45,4 +46,5 @@ public interface EventJpaRepository extends JpaRepository<EventFullDto, Integer>
             "group by e.event_id " +
             "order by e.event_id ASC", nativeQuery = true)
     List<EventFullDto> findByIds(List<Integer> eventsId);
+
 }

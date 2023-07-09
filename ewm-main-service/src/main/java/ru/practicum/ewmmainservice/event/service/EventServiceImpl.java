@@ -441,7 +441,7 @@ public class EventServiceImpl implements EventService {
     private void getHitsToShotrDto(List<EventShortDto> events, LocalDateTime start, LocalDateTime end) {
         String[] uris = new String[events.size()];
         for (int i = 0; i < events.size(); i++) {
-            uris[i] = "/events/"+ events.get(i).getId();
+            uris[i] = "/events/" + events.get(i).getId();
         }
         String startTime = start.format(formatter);
         String endTime = end.format(formatter);
@@ -465,7 +465,7 @@ public class EventServiceImpl implements EventService {
     private void getHits(List<EventDto> events, LocalDateTime start, LocalDateTime end) {
         String[] uris = new String[events.size()];
         for (int i = 0; i < events.size(); i++) {
-            uris[i] = "/events/"+ events.get(i).getId();
+            uris[i] = "/events/" + events.get(i).getId();
         }
         String startTime = start.format(formatter);
         String endTime = end.format(formatter);
@@ -488,7 +488,7 @@ public class EventServiceImpl implements EventService {
 
     private void getHits(EventDto eventDto) {
         String[] uris = new String[1];
-        uris[0] = "/events/"+ eventDto.getId();
+        uris[0] = "/events/" + eventDto.getId();
         String start = eventDto.getCreatedOn().format(formatter);
         String end = LocalDateTime.now().plusYears(15).format(formatter);
         Map<String, Object> parametrs = Map.of(
@@ -507,7 +507,7 @@ public class EventServiceImpl implements EventService {
 
     public List<EventShortDto> getEventsByIds(String[] eventsId) {
         List<Integer> idList = new ArrayList<>();
-        for (int i =0; i < eventsId.length; i++) {
+        for (int i = 0; i < eventsId.length; i++) {
             idList.add(Integer.parseInt(eventsId[i]));
         }
         List<EventShortDto> events = EventMapper.toEventShortList(eventRepository.findByIds(idList));
