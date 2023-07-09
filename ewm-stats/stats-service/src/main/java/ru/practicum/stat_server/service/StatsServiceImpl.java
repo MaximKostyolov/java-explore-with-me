@@ -33,23 +33,20 @@ public class StatsServiceImpl implements StatsService {
     }
 
     @Override
-    public List<ViewStats> getStats(String start, String end, List<String> uris, boolean unique) {
+    public List<ViewStats> getStats(LocalDateTime start, LocalDateTime end, List<String> uris, boolean unique) {
         List<HitView> stats;
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        LocalDateTime startTime = LocalDateTime.parse(start, formatter);
-        LocalDateTime endTime = LocalDateTime.parse(end, formatter);
-        if (startTime.isBefore(endTime)) {
+        if (start.isBefore(end)) {
             if (uris.isEmpty()) {
                 if (unique) {
-                    stats = statsRepository.getUniqueStats(startTime, endTime);
+                    stats = statsRepository.getUniqueStats(start, end);
                 } else {
-                    stats = statsRepository.getStats(startTime, endTime);
+                    stats = statsRepository.getStats(start, end);
                 }
             } else {
                 if (unique) {
-                    stats = statsRepository.getUniqueStatsWithUris(startTime, endTime, uris);
+                    stats = statsRepository.getUniqueStatsWithUris(start, end, uris);
                 } else {
-                    stats = statsRepository.getStatsWithUris(startTime, endTime, uris);
+                    stats = statsRepository.getStatsWithUris(start, end, uris);
                 }
             }
             return Mapper.hitViewListToViewStatsList(stats);

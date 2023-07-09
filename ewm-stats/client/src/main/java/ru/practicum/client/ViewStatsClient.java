@@ -1,7 +1,6 @@
 package ru.practicum.client;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
@@ -15,7 +14,6 @@ import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.util.DefaultUriBuilderFactory;
 import ru.practicum.dto.ViewStats;
 
-
 import java.util.Map;
 
 @Service
@@ -24,29 +22,30 @@ public class ViewStatsClient {
 
     private static final String API_PREFIX = "/stats";
 
+    private static final String serverUrl = "http://localhost:9090";
+
     @Autowired
-    public ViewStatsClient(@Value("http://localhost:9090") String serverUrl, RestTemplateBuilder builder) {
+    public ViewStatsClient(RestTemplateBuilder builder) {
         this.rest = builder
                 .uriTemplateHandler(new DefaultUriBuilderFactory(serverUrl + API_PREFIX))
                 .requestFactory(HttpComponentsClientHttpRequestFactory::new)
                 .build();
     }
 
-    protected ResponseEntity<ViewStats> get(String path, @Nullable Map<String, Object> parameters) {
-        return makeAndSendRequest(HttpMethod.GET, path, parameters, new ViewStats());
+    public ResponseEntity<ViewStats[]> get(String path, @Nullable Map<String, Object> parameters) {
+        return makeAndSendRequest(HttpMethod.GET, path, parameters);
     }
 
-    private ResponseEntity<ViewStats> makeAndSendRequest(HttpMethod method, String path,
-                                                           @Nullable Map<String, Object> parameters,
-                                                           ViewStats body) {
-        HttpEntity<ViewStats> requestEntity = new HttpEntity<>(body);
+    private ResponseEntity<ViewStats[]> makeAndSendRequest(HttpMethod method, String path,
+                                                           @Nullable Map<String, Object> parameters) {
+        HttpEntity<ViewStats[]> requestEntity = new HttpEntity<>(new ViewStats[1000]);
 
-        ResponseEntity<ViewStats> statsServerResponse;
+        ResponseEntity<ViewStats[]> statsServerResponse;
         try {
             if (parameters != null) {
-                statsServerResponse = rest.exchange(path, method, requestEntity, ViewStats.class, parameters);
+                statsServerResponse = rest.exchange(path, method, requestEntity, ViewStats[].class, parameters);
             } else {
-                statsServerResponse = rest.exchange(path, method, requestEntity, ViewStats.class);
+                statsServerResponse = rest.exchange(path, method, requestEntity, ViewStats[].class);
             }
         } catch (HttpStatusCodeException e) {
             throw new ResponseStatusException(e.getStatusCode());
@@ -54,7 +53,7 @@ public class ViewStatsClient {
         return prepareStatsResponse(statsServerResponse);
     }
 
-    private static ResponseEntity<ViewStats> prepareStatsResponse(ResponseEntity<ViewStats> response) {
+    private static ResponseEntity<ViewStats[]> prepareStatsResponse(ResponseEntity<ViewStats[]> response) {
         if (response.getStatusCode().is2xxSuccessful()) {
             return response;
         }
