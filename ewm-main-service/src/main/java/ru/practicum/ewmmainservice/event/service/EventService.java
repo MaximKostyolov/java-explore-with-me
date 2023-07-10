@@ -4,7 +4,6 @@ import ru.practicum.ewmmainservice.event.model.*;
 import ru.practicum.ewmmainservice.request.model.EventRequestStatusUpdateRequest;
 import ru.practicum.ewmmainservice.request.model.EventRequestStatusUpdateResult;
 import ru.practicum.ewmmainservice.request.model.ParticipationRequestDto;
-import ru.practicum.ewmmainservice.request.model.RequestDtoWithoutUser;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;

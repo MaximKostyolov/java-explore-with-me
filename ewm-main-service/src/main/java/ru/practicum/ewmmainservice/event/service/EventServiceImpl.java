@@ -18,7 +18,6 @@ import ru.practicum.ewmmainservice.event.mapper.EventMapper;
 import ru.practicum.ewmmainservice.event.model.*;
 import ru.practicum.ewmmainservice.event.repository.EventJpaRepository;
 import ru.practicum.ewmmainservice.exception.*;
-import ru.practicum.ewmmainservice.request.mapper.RequestMapper;
 import ru.practicum.ewmmainservice.request.model.*;
 import ru.practicum.ewmmainservice.request.repository.RequestJpaRepository;
 import ru.practicum.ewmmainservice.user.model.UserDto;
