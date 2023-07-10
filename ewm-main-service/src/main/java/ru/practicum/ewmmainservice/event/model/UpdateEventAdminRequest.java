@@ -26,7 +26,8 @@ public class UpdateEventAdminRequest {
 
     private Location location;
 
-    private boolean paid;
+    @Builder.Default
+    private boolean paid  = false;
 
     private boolean requestModeration;
 

@@ -18,10 +18,8 @@ import ru.practicum.ewmmainservice.event.mapper.EventMapper;
 import ru.practicum.ewmmainservice.event.model.*;
 import ru.practicum.ewmmainservice.event.repository.EventJpaRepository;
 import ru.practicum.ewmmainservice.exception.*;
-import ru.practicum.ewmmainservice.request.model.EventRequestStatusUpdateRequest;
-import ru.practicum.ewmmainservice.request.model.EventRequestStatusUpdateResult;
-import ru.practicum.ewmmainservice.request.model.ParticipationRequestDto;
-import ru.practicum.ewmmainservice.request.model.RequestStatus;
+import ru.practicum.ewmmainservice.request.mapper.RequestMapper;
+import ru.practicum.ewmmainservice.request.model.*;
 import ru.practicum.ewmmainservice.request.repository.RequestJpaRepository;
 import ru.practicum.ewmmainservice.user.model.UserDto;
 import ru.practicum.ewmmainservice.user.repository.UserJpaRepository;
@@ -59,7 +57,7 @@ public class EventServiceImpl implements EventService {
     public EventDto getEventById(int eventId, HttpServletRequest request) {
         if (validator.validateEvent(eventId, eventRepository)) {
             EventFullDto event = eventRepository.findById(eventId).get();
-            if (event.getState().equals(State.PUBLISHED)) {
+            if (event.getState().equals("PUBLISHED")) {
                 sendStats(request);
                 EventDto eventDto = EventMapper.toEventDto(event);
                 getHits(eventDto);
@@ -83,22 +81,25 @@ public class EventServiceImpl implements EventService {
         if (rangeStart != null) {
             startTime = LocalDateTime.parse(rangeStart, formatter);
         } else {
-            startTime = LocalDateTime.now();
+            startTime = LocalDateTime.now().minusYears(10);
         }
         if (rangeEnd != null) {
             endTime = LocalDateTime.parse(rangeEnd, formatter);
         } else {
             endTime = LocalDateTime.now().plusYears(15);
         }
+        if (startTime.isAfter(endTime)) {
+            throw new UnsupportedStateException("StartTime must be earlier then endTime");
+        }
         if (sort == null) {
             page = PageRequest.of(from, size,
-                    Sort.by(Sort.Direction.DESC, "event_id"));
+                    Sort.by(Sort.Direction.DESC, "id"));
         } else if (sort.equals("EVENT_DATE")) {
             page = PageRequest.of(from, size,
-                    Sort.by(Sort.Direction.DESC, "event_date"));
+                    Sort.by(Sort.Direction.DESC, "eventDate"));
         } else if (sort.equals("VIEWS")) {
             page = PageRequest.of(from, size,
-                    Sort.by(Sort.Direction.DESC, "event_id"));
+                    Sort.by(Sort.Direction.DESC, "id"));
         } else {
             throw new UnsupportedStateException("Unknown state sort. Sort must be EVENT_DATE or VIEWS");
         }
@@ -127,16 +128,16 @@ public class EventServiceImpl implements EventService {
         LocalDateTime endTime = null;
         if (rangeStart != null) {
             startTime = LocalDateTime.parse(rangeStart, formatter);
-        } /*else {
+        } else {
             startTime = LocalDateTime.now().minusYears(10);
-        }*/
+        }
         if (rangeEnd != null) {
             endTime = LocalDateTime.parse(rangeEnd, formatter);
-        } /*else {
-            endTime = LocalDateTime.now().plusYears(10);
-        }*/
+        } else {
+            endTime = LocalDateTime.now().plusYears(15);
+        }
         Pageable page = PageRequest.of(from, size,
-                Sort.by(Sort.Direction.DESC, "event_id"));
+                Sort.by(Sort.Direction.DESC, "id"));
         List<EventFullDto> events = eventRepository.findEventToAdmin(users, categories, startTime, endTime, states, page);
         List<EventDto> returnedEvents = new ArrayList<>();
         if (!events.isEmpty()) {
@@ -203,7 +204,7 @@ public class EventServiceImpl implements EventService {
                             initiator);
                     return eventRepository.save(eventToSave);
                 } else {
-                    throw new ValidateTimeEventException("Field: eventDate. Error: должно содержать дату, " +
+                    throw new UnsupportedStateException("Field: eventDate. Error: должно содержать дату, " +
                             "которая еще не наступила. Value: " + event.getEventDate());
                 }
             } else {
@@ -284,8 +285,10 @@ public class EventServiceImpl implements EventService {
             }
         }
         EventRequestStatusUpdateResult requestStatusResult = new EventRequestStatusUpdateResult();
-        requestStatusResult.setConfirmedRequests(requestRepository.findByEventAndStatusConfirmed(eventId));
-        requestStatusResult.setRejectedRequests(requestRepository.findByEventIdAndStatusRejected(eventId));
+        List<ParticipationRequestDto> confirmedRequests = requestRepository.findByEventAndStatusConfirmed(eventId);
+        List<ParticipationRequestDto> rejectedRequests = requestRepository.findByEventIdAndStatusRejected(eventId);
+        requestStatusResult.setConfirmedRequests(confirmedRequests);
+        requestStatusResult.setRejectedRequests(rejectedRequests);
         return requestStatusResult;
     }
 
@@ -310,13 +313,23 @@ public class EventServiceImpl implements EventService {
             eventFullDto.setLocation(event.getLocation());
         }
         if (event.isPaid()) {
-            eventFullDto.setPaid(event.isPaid());
+            if (!eventFullDto.isPaid()) {
+                eventFullDto.setPaid(event.isPaid());
+            }
+        } else if (!event.isPaid()) {
+            if (eventFullDto.isPaid()) {
+                eventFullDto.setPaid(event.isPaid());
+            }
         }
         if (event.isRequestModeration()) {
             eventFullDto.setRequestModeration(event.isRequestModeration());
         }
         if (event.getEventDate() != null) {
-            eventFullDto.setEventDate(LocalDateTime.parse(event.getEventDate(), formatter));
+            if (LocalDateTime.parse(event.getEventDate(), formatter).minusHours(1).isAfter(LocalDateTime.now())) {
+                eventFullDto.setEventDate(LocalDateTime.parse(event.getEventDate(), formatter));
+            } else {
+                throw new UnsupportedStateException("Event date can't be erlier then now");
+            }
         }
         if (event.getParticipantLimit() != null) {
             eventFullDto.setParticipantLimit(event.getParticipantLimit());
@@ -324,8 +337,8 @@ public class EventServiceImpl implements EventService {
         if (event.getStateAction() != null) {
             if (event.getStateAction().equals(StateAction.PUBLISH_EVENT)) {
                 if (eventFullDto.getEventDate().minusHours(1).isAfter(LocalDateTime.now())) {
-                    if (eventFullDto.getState().equals(State.PENDING)) {
-                        eventFullDto.setState(State.PUBLISHED);
+                    if (eventFullDto.getState().equals("PENDING")) {
+                        eventFullDto.setState("PUBLISHED");
                         eventFullDto.setPublishedOn(LocalDateTime.now());
                     } else {
                         throw new PublishEventException("Cannot publish the event because it's not in the right state:" +
@@ -336,8 +349,8 @@ public class EventServiceImpl implements EventService {
                             "которая еще не наступила. Value: " + eventFullDto.getEventDate().format(formatter));
                 }
             } else if (event.getStateAction() == StateAction.REJECT_EVENT) {
-                if (eventFullDto.getState() != State.PUBLISHED) {
-                    eventFullDto.setState(State.CANCELED);
+                if (!eventFullDto.getState().equals("PUBLISHED")) {
+                    eventFullDto.setState("CANCELED");
                 } else {
                     throw new CancelEventException("Cannot cancel publish the event because it's not in the right" +
                             " state: PUBLISHED");
@@ -350,15 +363,15 @@ public class EventServiceImpl implements EventService {
     }
 
     private EventFullDto updateEventFromUser(EventFullDto event, UpdateEventUserRequest updatedEvent) {
-        if (event.getState() != State.PUBLISHED) {
+        if (!event.getState().equals("PUBLISHED")) {
             if (updatedEvent.getTitle() != null) {
-                event.setTitle(event.getTitle());
+                event.setTitle(updatedEvent.getTitle());
             }
             if (updatedEvent.getAnnotation() != null) {
-                event.setAnnotation(event.getAnnotation());
+                event.setAnnotation(updatedEvent.getAnnotation());
             }
             if (updatedEvent.getDescription() != null) {
-                event.setDescription(event.getDescription());
+                event.setDescription(updatedEvent.getDescription());
             }
             if (updatedEvent.getCategory() != null) {
                 if (validator.validateCategory(updatedEvent.getCategory(), categoryRepository)) {
@@ -368,16 +381,21 @@ public class EventServiceImpl implements EventService {
                 }
             }
             if (updatedEvent.getLocation() != null) {
-                event.setLocation(event.getLocation());
+                event.setLocation(updatedEvent.getLocation());
             }
             if (updatedEvent.isPaid()) {
-                event.setPaid(event.isPaid());
+                event.setPaid(updatedEvent.isPaid());
             }
             if (updatedEvent.isRequestModeration()) {
-                event.setRequestModeration(event.isRequestModeration());
+                event.setRequestModeration(updatedEvent.isRequestModeration());
             }
             if (updatedEvent.getEventDate() != null) {
-                event.setEventDate(event.getEventDate());
+                if (LocalDateTime.parse(updatedEvent.getEventDate(), formatter).minusHours(2)
+                        .isAfter(LocalDateTime.now())) {
+                    event.setEventDate(LocalDateTime.parse(updatedEvent.getEventDate(), formatter));
+                } else {
+                    throw new UnsupportedStateException("Event date can't be erlier then now");
+                }
             }
             if (updatedEvent.getParticipantLimit() != null) {
                 event.setParticipantLimit(event.getParticipantLimit());
@@ -385,13 +403,13 @@ public class EventServiceImpl implements EventService {
             if (updatedEvent.getStateAction() != null) {
                 if (updatedEvent.getStateAction() == StateActionFromUser.SEND_TO_REVIEW) {
                     if (event.getEventDate().minusHours(2).isAfter(LocalDateTime.now())) {
-                        event.setState(State.PENDING);
+                        event.setState("PENDING");
                     } else {
                         throw new ValidateTimeEventException("Field: eventDate. Error: должно содержать дату, " +
                                 "которая еще не наступила. Value: " + event.getEventDate().format(formatter));
                     }
                 } else if (updatedEvent.getStateAction() == StateActionFromUser.CANCEL_REVIEW) {
-                    event.setState(State.CANCELED);
+                    event.setState("CANCELED");
                 } else {
                     throw new UnsupportedStateException("Unknown state stateAction. StateAction must be SEND_TO_REVIEW" +
                             " or CANCEL_REVIEW");
@@ -453,9 +471,11 @@ public class EventServiceImpl implements EventService {
         );
         ViewStats[] viewStats = statsClient.get("?start={start}&end={end}&uris={uris}&unique={unique}", parametrs)
                 .getBody();
-        if (viewStats.length > 0) {
-            for (int i = 0; i < events.size(); i++) {
-                events.get(i).setViews(viewStats[i].getHits());
+        if (viewStats != null) {
+            if (viewStats.length >= 1) {
+                for (int i = 0; i < events.size(); i++) {
+                    events.get(i).setViews(viewStats[i].getHits());
+                }
             }
         } else {
             log.info("Отсутствуют просмотры в сервисе статистики");
@@ -477,9 +497,11 @@ public class EventServiceImpl implements EventService {
         );
         ViewStats[] viewStats = statsClient.get("?start={start}&end={end}&uris={uris}&unique={unique}", parametrs)
                 .getBody();
-        if (viewStats.length > 0) {
-            for (int i = 0; i < events.size(); i++) {
-                events.get(i).setViews(viewStats[i].getHits());
+        if (viewStats != null) {
+            if (viewStats.length >= 1) {
+                for (int i = 0; i < events.size(); i++) {
+                    events.get(i).setViews(viewStats[i].getHits());
+                }
             }
         } else {
             log.info("Отсутствуют просмотры в сервисе статистики");
@@ -498,8 +520,10 @@ public class EventServiceImpl implements EventService {
                 "unique", "true"
         );
         ViewStats[] viewStats = statsClient.get("?start={start}&end={end}&uris={uris}&unique={unique}", parametrs).getBody();
-        if (viewStats.length > 0) {
-            eventDto.setViews(viewStats[0].getHits());
+        if (viewStats != null) {
+            if (viewStats.length >= 1) {
+                eventDto.setViews(viewStats[0].getHits());
+            }
         } else {
             log.info("Отсутствуют просмотры в сервисе статистики");
         }
@@ -511,8 +535,8 @@ public class EventServiceImpl implements EventService {
             idList.add(Integer.parseInt(eventsId[i]));
         }
         List<EventShortDto> events = EventMapper.toEventShortList(eventRepository.findByIds(idList));
-        //getConfirmedRequestsToShotrDto(events);
-        //getHitsToShotrDto(events, LocalDateTime.now().minusYears(10), LocalDateTime.now().plusYears(15));
+        getConfirmedRequestsToShotrDto(events);
+        getHitsToShotrDto(events, LocalDateTime.now().minusYears(10), LocalDateTime.now().plusYears(15));
         return events;
     }
 

@@ -5,7 +5,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.ewmmainservice.event.model.EventFullDto;
-import ru.practicum.ewmmainservice.event.model.State;
 import ru.practicum.ewmmainservice.event.repository.EventJpaRepository;
 import ru.practicum.ewmmainservice.exception.AccesErrorException;
 import ru.practicum.ewmmainservice.exception.NotFoundException;
@@ -20,6 +19,7 @@ import ru.practicum.ewmmainservice.user.repository.UserJpaRepository;
 import ru.practicum.ewmmainservice.validator.Validator;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @Slf4j
@@ -36,6 +36,8 @@ public class RequestServiceImpl implements RequestService {
 
     private final Validator validator;
 
+    private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
     @Override
     public List<RequestDto> getRequests(int userId) {
         return RequestMapper.toRequestDtoList(requestRepository.findAllByUserId(userId));
@@ -48,24 +50,23 @@ public class RequestServiceImpl implements RequestService {
                 UserDto user = userRepository.findById(userId).get();
                 EventFullDto event = eventRepository.findById(eventId).get();
                 if (event.getInitiator().getId() != userId) {
-                    if ((event.getState().equals(State.PUBLISHED)) && (event.isAvailable())) {
+                    if ((event.getState().equals("PUBLISHED")) && (event.isAvailable())) {
                         if (!validator.validateRequest(userId, eventId, requestRepository)) {
                             ParticipationRequestDto requestDto = ParticipationRequestDto.builder()
-                                    .created(LocalDateTime.now())
+                                    .created(LocalDateTime.parse(LocalDateTime.now().format(formatter), formatter))
                                     .requester(user)
                                     .event(event)
                                     .status(RequestStatus.PENDING)
                                     .build();
                             if ((event.getParticipantLimit().equals(0))  ||
                                 ((event.isAvailable()) && (!event.isRequestModeration()))) {
+                                requestDto.setStatus((RequestStatus.CONFIRMED));
                                 if (event.getParticipantLimit() > 0) {
                                     if (event.getParticipantLimit().equals(requestRepository
                                             .getConfirmedRequest(eventId).size())) {
                                         event.setAvailable(false);
                                         eventRepository.save(event);
                                         throw new AccesErrorException("Event is not available");
-                                    } else {
-                                        requestDto.setStatus((RequestStatus.CONFIRMED));
                                     }
                                 }
                             }

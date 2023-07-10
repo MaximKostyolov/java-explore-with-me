@@ -71,8 +71,7 @@ public class EventFullDto {
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime publishedOn;
 
-    @Enumerated(EnumType.STRING)
-    private State state;
+    private String state;
 
     @Column(name = "available", columnDefinition = "boolean default true")
     private boolean available;

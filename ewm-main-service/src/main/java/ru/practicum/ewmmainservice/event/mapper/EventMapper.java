@@ -13,13 +13,15 @@ import java.util.List;
 @Service
 public class EventMapper {
 
+    private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
     public static EventFullDto newEventDtoToEventFullDto(NewEventDto event, CategoryDto categoryDto,
                                                          UserDto initiator) {
         return EventFullDto.builder()
                 .annotation(event.getAnnotation())
                 .category(categoryDto)
-                .eventDate(LocalDateTime.parse(event.getEventDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")))
-                .createdOn(LocalDateTime.now())
+                .eventDate(LocalDateTime.parse(event.getEventDate(), formatter))
+                .createdOn(LocalDateTime.parse(LocalDateTime.now().format(formatter), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")))
                 .description(event.getDescription())
                 .initiator(initiator)
                 .location(event.getLocation())
@@ -27,7 +29,7 @@ public class EventMapper {
                 .participantLimit(event.getParticipantLimit())
                 .requestModeration(event.isRequestModeration())
                 .title(event.getTitle())
-                .state(State.PENDING)
+                .state("PENDING")
                 .available(true)
                 .build();
     }

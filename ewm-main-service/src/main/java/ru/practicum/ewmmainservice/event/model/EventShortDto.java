@@ -11,15 +11,13 @@ import ru.practicum.ewmmainservice.user.model.UserDto;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
-import java.io.Serializable;
 import java.time.LocalDateTime;
-import java.util.Comparator;
 
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class EventShortDto implements Serializable {
+public class EventShortDto implements Comparable<EventShortDto> {
 
     private Integer id;
 
@@ -52,6 +50,9 @@ public class EventShortDto implements Serializable {
 
     private Integer views;
 
-    public static final Comparator<EventShortDto> COMPARE_VIEWS = Comparator.comparingInt(EventShortDto::getViews);
+    @Override
+    public int compareTo(EventShortDto otherEventShortDto) {
+        return otherEventShortDto.getViews() - this.getViews();
+    }
 
 }

@@ -34,7 +34,7 @@ public class ParticipationRequestDto {
     @JoinColumn(name = "event", referencedColumnName = "event_id")
     private EventFullDto event;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "requester", referencedColumnName = "user_id")
     private UserDto requester;
 

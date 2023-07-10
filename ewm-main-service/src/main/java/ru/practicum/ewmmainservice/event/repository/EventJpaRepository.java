@@ -15,25 +15,24 @@ public interface EventJpaRepository extends JpaRepository<EventFullDto, Integer>
             "where e.initiator = ?1")
     List<EventFullDto> findByInitiator(UserDto user, Pageable page);
 
-    @Query(value = "select * from events e " +
-            "where (?1 is null or lower(e.annotation) like concat('%', ?1, '%') " +
-            "or lower(e.description) like concat('%', ?1, '%')) " +
-            "and (?2 is null or (e.category_id in ?2)) " +
-            "and (?3 is null or (e.paid = ?3)) " +
-            "and (e.event_date > ?4) " +
-            "and (e.event_date < ?5) " +
-            "and (?6 is null or e.available = ?6) " +
-            "and (e.state = 'PUBLISHED')", nativeQuery = true)
+    @Query(value = "select e " +
+            "from EventFullDto e " +
+            "where e.annotation like (concat('%', :text, '%')) " +
+            "or e.description like (concat('%', :text, '%')) " +
+            "and (:categories is null or e.category.id in :categories) " +
+            "and (:paid is null or e.paid = :paid) " +
+            "and e.eventDate between :startTime and :endTime " +
+            "and (:onlyAvailable is null or e.available = :onlyAvailable) " +
+            "and e.state = 'PUBLISHED' ")
     List<EventFullDto> findEvent(String text, List<Integer> categories, boolean paid, LocalDateTime startTime,
                    LocalDateTime endTime, boolean onlyAvailable, Pageable page);
 
-    @Query(value = "select * from events e " +
-            "where (?1 is null or (e.initiator in ?1)) " +
-            "and (?2 is null or (e.category_id in ?2)) " +
-            "and (?3 is null or (e.event_date > ?3)) " +
-            "and (?4 is null or (e.event_date < ?4)) " +
-            "and (?5 is null or (e.state in ?5)) " +
-            "group by e.event_id", nativeQuery = true)
+    @Query(value = "select e " +
+            "from EventFullDto e " +
+            "where (:users is null or e.initiator.id in :users) " +
+            "and (:states is null or e.state in :states) " +
+            "and (:categories is null or e.category.id in :categories) " +
+            "and e.eventDate between :startTime and :endTime ")
     List<EventFullDto> findEventToAdmin(List<Integer> users, List<Integer> categories, LocalDateTime startTime,
                                         LocalDateTime endTime, List<String> states, Pageable page);
 
@@ -43,8 +42,7 @@ public interface EventJpaRepository extends JpaRepository<EventFullDto, Integer>
 
     @Query(value = "select * from events e " +
             "where e.event_id in ?1 " +
-            "group by e.event_id " +
-            "order by e.event_id ASC", nativeQuery = true)
+            "group by e.event_id ", nativeQuery = true)
     List<EventFullDto> findByIds(List<Integer> eventsId);
 
 }

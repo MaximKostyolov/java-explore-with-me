@@ -29,16 +29,16 @@ public class EventPublicController {
     }
 
     @GetMapping
-    public List<EventDto> getEvents(@RequestParam(defaultValue = "") String text,
-                                         @RequestParam(defaultValue = "") List<Integer> categories,
-                                         @RequestParam(required = false) boolean paid,
-                                         @RequestParam(required = false) String rangeStart,
-                                         @RequestParam(required = false) String rangeEnd,
-                                         @RequestParam(defaultValue = "false") boolean onlyAvailable,
-                                         @RequestParam(required = false) String sort,
-                                         @RequestParam(defaultValue = "0") int from,
-                                         @RequestParam(defaultValue = "10") int size,
-                                         HttpServletRequest request) {
+    public List<EventDto> getEvents(@RequestParam(defaultValue = " ") String text,
+                                    @RequestParam(required = false) List<Integer> categories,
+                                    @RequestParam(required = false) boolean paid,
+                                    @RequestParam(required = false) String rangeStart,
+                                    @RequestParam(required = false) String rangeEnd,
+                                    @RequestParam(defaultValue = "false") boolean onlyAvailable,
+                                    @RequestParam(required = false) String sort,
+                                    @RequestParam(defaultValue = "0") int from,
+                                    @RequestParam(defaultValue = "10") int size,
+                                    HttpServletRequest request) {
         log.info("Получен запрос к эндпоинту: '{} {}', Строка параметров запроса: '{}'",
                 request.getMethod(), request.getRequestURI(), request.getQueryString());
         return eventService.getEvents(text, categories, paid, rangeStart, rangeEnd, onlyAvailable, sort, from, size,

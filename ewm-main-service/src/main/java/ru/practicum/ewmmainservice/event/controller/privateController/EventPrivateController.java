@@ -12,6 +12,7 @@ import ru.practicum.ewmmainservice.event.service.EventService;
 import ru.practicum.ewmmainservice.request.model.EventRequestStatusUpdateRequest;
 import ru.practicum.ewmmainservice.request.model.EventRequestStatusUpdateResult;
 import ru.practicum.ewmmainservice.request.model.ParticipationRequestDto;
+import ru.practicum.ewmmainservice.request.model.RequestDtoWithoutUser;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
@@ -70,8 +71,8 @@ public class EventPrivateController {
 
     @GetMapping("/{eventId}/requests")
     public List<ParticipationRequestDto> getRequests(@PathVariable int userId,
-                                               @PathVariable int eventId,
-                                               HttpServletRequest request) {
+                                                   @PathVariable int eventId,
+                                                   HttpServletRequest request) {
         log.info("Получен запрос к эндпоинту: '{} {}', Строка параметров запроса: '{}'",
                 request.getMethod(), request.getRequestURI(), request.getQueryString());
         return eventService.getRequests(userId, eventId);

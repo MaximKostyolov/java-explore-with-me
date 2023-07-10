@@ -1,13 +1,14 @@
 package ru.practicum.ewmmainservice.event.model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 import ru.practicum.ewmmainservice.category.model.CategoryDto;
 import ru.practicum.ewmmainservice.user.model.UserDto;
 
-import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.Comparator;
 
@@ -15,7 +16,7 @@ import java.util.Comparator;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class EventDto implements Serializable {
+public class EventDto implements Comparable<EventDto> {
 
     private Integer id;
 
@@ -37,13 +38,19 @@ public class EventDto implements Serializable {
 
     private Integer participantLimit;
 
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime eventDate;
 
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime createdOn;
 
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime publishedOn;
 
-    private State state;
+    private String state;
 
     private boolean available;
 
@@ -52,5 +59,10 @@ public class EventDto implements Serializable {
     private Integer views;
 
     public static final Comparator<EventDto> COMPARE_VIEWS = Comparator.comparingInt(EventDto::getViews);
+
+    @Override
+    public int compareTo(EventDto otherEventDto) {
+        return otherEventDto.getViews() - this.getViews();
+    }
 
 }
