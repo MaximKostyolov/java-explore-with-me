@@ -18,6 +18,7 @@ import ru.practicum.ewmmainservice.event.mapper.EventMapper;
 import ru.practicum.ewmmainservice.event.model.*;
 import ru.practicum.ewmmainservice.event.repository.EventJpaRepository;
 import ru.practicum.ewmmainservice.exception.*;
+import ru.practicum.ewmmainservice.request.mapper.RequestMapper;
 import ru.practicum.ewmmainservice.request.model.*;
 import ru.practicum.ewmmainservice.request.repository.RequestJpaRepository;
 import ru.practicum.ewmmainservice.user.model.UserDto;
@@ -235,12 +236,13 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public List<ParticipationRequestDto> getRequests(int userId, int eventId) {
+    public List<RequestDto> getRequests(int userId, int eventId) {
         if ((validator.validateUser(userId, userRepository)) &&
                 (validator.validateEvent(eventId, eventRepository))) {
             EventFullDto eventFullDto = eventRepository.findById(eventId).get();
             if (eventFullDto.getInitiator().getId() == userId) {
-                return requestRepository.findByEventId(eventId);
+                List<ParticipationRequestDto> requests = requestRepository.findByEventId(eventId);
+                return RequestMapper.toRequestDtoList(requests);
             } else {
                 throw new AccesErrorException("Events has another initiatitor.");
             }
@@ -286,8 +288,8 @@ public class EventServiceImpl implements EventService {
         EventRequestStatusUpdateResult requestStatusResult = new EventRequestStatusUpdateResult();
         List<ParticipationRequestDto> confirmedRequests = requestRepository.findByEventAndStatusConfirmed(eventId);
         List<ParticipationRequestDto> rejectedRequests = requestRepository.findByEventIdAndStatusRejected(eventId);
-        requestStatusResult.setConfirmedRequests(confirmedRequests);
-        requestStatusResult.setRejectedRequests(rejectedRequests);
+        requestStatusResult.setConfirmedRequests(RequestMapper.toRequestDtoList(confirmedRequests));
+        requestStatusResult.setRejectedRequests(RequestMapper.toRequestDtoList(rejectedRequests));
         return requestStatusResult;
     }
 
@@ -382,8 +384,15 @@ public class EventServiceImpl implements EventService {
             if (updatedEvent.getLocation() != null) {
                 event.setLocation(updatedEvent.getLocation());
             }
-            if (updatedEvent.isPaid()) {
-                event.setPaid(updatedEvent.isPaid());
+            if ((updatedEvent.isPaid()) && (updatedEvent.getStateAction() != StateActionFromUser.CANCEL_REVIEW)) {
+                if (!event.isPaid()) {
+                    event.setPaid(updatedEvent.isPaid());
+                }
+            } else if ((!updatedEvent.isPaid()) &&
+                    (updatedEvent.getStateAction() != StateActionFromUser.CANCEL_REVIEW)) {
+                if (event.isPaid()) {
+                    event.setPaid(updatedEvent.isPaid());
+                }
             }
             if (updatedEvent.isRequestModeration()) {
                 event.setRequestModeration(updatedEvent.isRequestModeration());
@@ -409,12 +418,13 @@ public class EventServiceImpl implements EventService {
                     }
                 } else if (updatedEvent.getStateAction() == StateActionFromUser.CANCEL_REVIEW) {
                     event.setState("CANCELED");
+                    event.setAvailable(false);
                 } else {
                     throw new UnsupportedStateException("Unknown state stateAction. StateAction must be SEND_TO_REVIEW" +
                             " or CANCEL_REVIEW");
                 }
             }
-            return event;
+            return eventRepository.save(event);
         } else {
             throw new AccesErrorException("Only pending or canceled events can be changed");
         }
@@ -472,7 +482,7 @@ public class EventServiceImpl implements EventService {
                 .getBody();
         if (viewStats != null) {
             if (viewStats.length >= 1) {
-                for (int i = 0; i < events.size(); i++) {
+                for (int i = 0; i < viewStats.length; i++) {
                     events.get(i).setViews(viewStats[i].getHits());
                 }
             }
@@ -518,7 +528,8 @@ public class EventServiceImpl implements EventService {
                 "uris", uris,
                 "unique", "true"
         );
-        ViewStats[] viewStats = statsClient.get("?start={start}&end={end}&uris={uris}&unique={unique}", parametrs).getBody();
+        ViewStats[] viewStats = statsClient.get("?start={start}&end={end}&uris={uris}&unique={unique}",
+                parametrs).getBody();
         if (viewStats != null) {
             if (viewStats.length >= 1) {
                 eventDto.setViews(viewStats[0].getHits());
