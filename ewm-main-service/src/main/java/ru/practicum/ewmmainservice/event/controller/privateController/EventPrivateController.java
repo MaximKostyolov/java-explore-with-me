@@ -11,7 +11,6 @@ import ru.practicum.ewmmainservice.event.model.UpdateEventUserRequest;
 import ru.practicum.ewmmainservice.event.service.EventService;
 import ru.practicum.ewmmainservice.request.model.EventRequestStatusUpdateRequest;
 import ru.practicum.ewmmainservice.request.model.EventRequestStatusUpdateResult;
-import ru.practicum.ewmmainservice.request.model.ParticipationRequestDto;
 import ru.practicum.ewmmainservice.request.model.RequestDto;
 
 import javax.servlet.http.HttpServletRequest;
