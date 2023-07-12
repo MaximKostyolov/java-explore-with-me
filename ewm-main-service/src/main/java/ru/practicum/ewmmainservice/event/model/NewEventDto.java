@@ -31,18 +31,15 @@ public class NewEventDto {
 
     private Location location;
 
-    @Builder.Default
-    private boolean paid  = false;
+    private Boolean paid;
 
-    @Builder.Default
-    private boolean requestModeration = true;
+    private Boolean requestModeration;
 
     @NotBlank
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private String eventDate;
 
-    @Builder.Default
-    private Integer participantLimit = 0;
+    private Integer participantLimit;
 
 }

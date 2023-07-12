@@ -48,6 +48,12 @@ public class EventServiceImpl implements EventService {
 
     private final Validator validator;
 
+    private final EndpointHitClient endpointHitClient;
+
+    private final ViewStatsClient statsClient;
+
+    private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
     @Autowired
     public EventServiceImpl(EventJpaRepository eventRepository, CategoryJpaRepository categoryRepository,
                             UserJpaRepository userRepository, RequestJpaRepository requestRepository,
@@ -60,13 +66,6 @@ public class EventServiceImpl implements EventService {
         this.endpointHitClient = new EndpointHitClient(serverUrl, new RestTemplateBuilder());
         this.statsClient = new ViewStatsClient(serverUrl, new RestTemplateBuilder());
     }
-
-    private final EndpointHitClient endpointHitClient;
-
-    private final ViewStatsClient statsClient;
-
-    private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-
 
     @Override
     public EventDto getEventById(int eventId, HttpServletRequest request) {
@@ -215,6 +214,15 @@ public class EventServiceImpl implements EventService {
                 CategoryDto categoryDto = categoryRepository.findById(event.getCategory()).get();
                 if (LocalDateTime.parse(event.getEventDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
                         .minusHours(2).isAfter(LocalDateTime.now())) {
+                    if (event.getPaid() == null) {
+                        event.setPaid(false);
+                    }
+                    if (event.getRequestModeration() == null) {
+                        event.setRequestModeration(true);
+                    }
+                    if (event.getParticipantLimit() == null) {
+                        event.setParticipantLimit(0);
+                    }
                     EventFullDto eventToSave = EventMapper.newEventDtoToEventFullDto(event, categoryDto,
                             initiator);
                     return eventRepository.save(eventToSave);
@@ -445,7 +453,7 @@ public class EventServiceImpl implements EventService {
     private void sendStats(HttpServletRequest request) {
         EndpointHit endpointHit = EndpointHit.builder()
                 .app("ewm-main-service")
-                .ip(request.getRemoteAddr())
+                .ip(request.getLocalAddr())
                 .uri(request.getRequestURI())
                 .timestamp(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")))
                 .build();
@@ -456,7 +464,7 @@ public class EventServiceImpl implements EventService {
         for (EventFullDto event : events) {
             EndpointHit endpointHit = EndpointHit.builder()
                     .app("ewm-main-service")
-                    .ip(request.getRemoteAddr())
+                    .ip(request.getLocalAddr())
                     .uri(request.getRequestURI() + "/" + event.getId())
                     .timestamp(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")))
                     .build();
