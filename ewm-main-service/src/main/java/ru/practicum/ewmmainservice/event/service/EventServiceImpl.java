@@ -408,7 +408,8 @@ public class EventServiceImpl implements EventService {
             if (updatedEvent.getLocation() != null) {
                 event.setLocation(updatedEvent.getLocation());
             }
-            if (updatedEvent.isPaid() != event.isPaid()) {
+            if ((updatedEvent.isPaid() && !event.isPaid()) ||
+                (!updatedEvent.isPaid() && event.isPaid())) {
                 event.setPaid(updatedEvent.isPaid());
             }
             if (updatedEvent.isRequestModeration()) {
@@ -453,7 +454,7 @@ public class EventServiceImpl implements EventService {
     private void sendStats(HttpServletRequest request) {
         EndpointHit endpointHit = EndpointHit.builder()
                 .app("ewm-main-service")
-                .ip(request.getLocalAddr())
+                .ip(request.getRemoteAddr())
                 .uri(request.getRequestURI())
                 .timestamp(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")))
                 .build();
@@ -464,7 +465,7 @@ public class EventServiceImpl implements EventService {
         for (EventFullDto event : events) {
             EndpointHit endpointHit = EndpointHit.builder()
                     .app("ewm-main-service")
-                    .ip(request.getLocalAddr())
+                    .ip(request.getRemoteAddr())
                     .uri(request.getRequestURI() + "/" + event.getId())
                     .timestamp(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")))
                     .build();
@@ -488,7 +489,7 @@ public class EventServiceImpl implements EventService {
     private void getHitsToShortDto(List<EventShortDto> events, LocalDateTime start, LocalDateTime end) {
         String[] uris = new String[events.size()];
         for (int i = 0; i < events.size(); i++) {
-            uris[i] = "/events/" + events.get(i).getId();
+            uris[i] = "/events/" + events.get(i).getId().toString();
         }
         String startTime = start.format(formatter);
         String endTime = end.format(formatter);
@@ -514,7 +515,7 @@ public class EventServiceImpl implements EventService {
     private void getHits(List<EventDto> events, LocalDateTime start, LocalDateTime end) {
         String[] uris = new String[events.size()];
         for (int i = 0; i < events.size(); i++) {
-            uris[i] = "/events/" + events.get(i).getId();
+            uris[i] = "/events/" + events.get(i).getId().toString();
         }
         String startTime = start.format(formatter);
         String endTime = end.format(formatter);
@@ -539,9 +540,9 @@ public class EventServiceImpl implements EventService {
 
     private void getHits(EventDto eventDto) {
         String[] uris = new String[1];
-        uris[0] = "/events/" + eventDto.getId();
-        String start = eventDto.getCreatedOn().format(formatter);
-        String end = LocalDateTime.now().plusYears(15).format(formatter);
+        uris[0] = "/events/" + eventDto.getId().toString();
+        String start = eventDto.getCreatedOn().minusMinutes(1).format(formatter);
+        String end = LocalDateTime.now().plusYears(10).format(formatter);
         Map<String, Object> parametrs = Map.of(
                 "start", start,
                 "end", end,
@@ -551,7 +552,7 @@ public class EventServiceImpl implements EventService {
         ViewStats[] viewStats = statsClient.get("?start={start}&end={end}&uris={uris}&unique={unique}",
                 parametrs).getBody();
         if (viewStats != null) {
-            if (viewStats.length >= 1) {
+            if (viewStats.length > 0) {
                 eventDto.setViews(viewStats[0].getHits());
             }
         } else {
@@ -566,7 +567,7 @@ public class EventServiceImpl implements EventService {
         }
         List<EventShortDto> events = EventMapper.toEventShortList(eventRepository.findByIds(idList));
         getConfirmedRequestsToShortDto(events);
-        getHitsToShortDto(events, LocalDateTime.now().minusYears(10), LocalDateTime.now().plusYears(15));
+        getHitsToShortDto(events, LocalDateTime.now().minusYears(10), LocalDateTime.now());
         return events;
     }
 
