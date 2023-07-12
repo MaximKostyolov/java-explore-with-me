@@ -26,10 +26,9 @@ public class UpdateEventAdminRequest {
 
     private Location location;
 
-    @Builder.Default
-    private boolean paid  = false;
+    private Boolean paid;
 
-    private boolean requestModeration;
+    private Boolean requestModeration;
 
     private String eventDate;
 

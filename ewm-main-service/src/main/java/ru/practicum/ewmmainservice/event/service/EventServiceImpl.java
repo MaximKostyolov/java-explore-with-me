@@ -336,17 +336,11 @@ public class EventServiceImpl implements EventService {
         if (event.getLocation() != null) {
             eventFullDto.setLocation(event.getLocation());
         }
-        if (event.isPaid()) {
-            if (!eventFullDto.isPaid()) {
-                eventFullDto.setPaid(event.isPaid());
-            }
-        } else if (!event.isPaid()) {
-            if (eventFullDto.isPaid()) {
-                eventFullDto.setPaid(event.isPaid());
-            }
+        if (event.getPaid() != null) {
+            eventFullDto.setPaid(event.getPaid());
         }
-        if (event.isRequestModeration()) {
-            eventFullDto.setRequestModeration(event.isRequestModeration());
+        if (event.getRequestModeration() != null) {
+            eventFullDto.setRequestModeration(event.getRequestModeration());
         }
         if (event.getEventDate() != null) {
             if (LocalDateTime.parse(event.getEventDate(), formatter).minusHours(1).isAfter(LocalDateTime.now())) {
@@ -408,12 +402,11 @@ public class EventServiceImpl implements EventService {
             if (updatedEvent.getLocation() != null) {
                 event.setLocation(updatedEvent.getLocation());
             }
-            if ((updatedEvent.isPaid() && !event.isPaid()) ||
-                (!updatedEvent.isPaid() && event.isPaid())) {
-                event.setPaid(updatedEvent.isPaid());
+            if (updatedEvent.getPaid() != null) {
+                event.setPaid(updatedEvent.getPaid());
             }
-            if (updatedEvent.isRequestModeration()) {
-                event.setRequestModeration(updatedEvent.isRequestModeration());
+            if (updatedEvent.getRequestModeration() != null) {
+                event.setRequestModeration(updatedEvent.getRequestModeration());
             }
             if (updatedEvent.getEventDate() != null) {
                 if (LocalDateTime.parse(updatedEvent.getEventDate(), formatter).minusHours(2)

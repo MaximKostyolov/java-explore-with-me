@@ -26,9 +26,9 @@ public class UpdateEventUserRequest {
 
     private Location location;
 
-    private boolean paid;
+    private Boolean paid;
 
-    private boolean requestModeration;
+    private Boolean requestModeration;
 
     private String eventDate;
 
