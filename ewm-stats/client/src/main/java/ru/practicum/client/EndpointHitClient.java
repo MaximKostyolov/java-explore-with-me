@@ -1,6 +1,7 @@
 package ru.practicum.client;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.*;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
@@ -22,10 +23,8 @@ public class EndpointHitClient {
 
     private static final String API_PREFIX = "/hit";
 
-    private static final String serverUrl = "http://localhost:9090";
-
     @Autowired
-    public EndpointHitClient(RestTemplateBuilder builder) {
+    public EndpointHitClient(String serverUrl, RestTemplateBuilder builder) {
         this.rest = builder
                 .uriTemplateHandler(new DefaultUriBuilderFactory(serverUrl + API_PREFIX))
                 .requestFactory(HttpComponentsClientHttpRequestFactory::new)

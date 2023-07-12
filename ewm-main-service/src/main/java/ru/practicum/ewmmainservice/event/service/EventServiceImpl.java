@@ -2,6 +2,8 @@ package ru.practicum.ewmmainservice.event.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -46,9 +48,22 @@ public class EventServiceImpl implements EventService {
 
     private final Validator validator;
 
-    private final EndpointHitClient endpointHitClient = new EndpointHitClient(new RestTemplateBuilder());
+    @Autowired
+    public EventServiceImpl(EventJpaRepository eventRepository, CategoryJpaRepository categoryRepository,
+                            UserJpaRepository userRepository, RequestJpaRepository requestRepository,
+                            Validator validator, @Value("${stats-server.url}") String serverUrl) {
+        this.eventRepository = eventRepository;
+        this.categoryRepository = categoryRepository;
+        this.userRepository = userRepository;
+        this.requestRepository = requestRepository;
+        this.validator = validator;
+        this.endpointHitClient = new EndpointHitClient(serverUrl, new RestTemplateBuilder());
+        this.statsClient = new ViewStatsClient(serverUrl, new RestTemplateBuilder());
+    }
 
-    private final ViewStatsClient statsClient = new ViewStatsClient(new RestTemplateBuilder());
+    private final EndpointHitClient endpointHitClient;
+
+    private final ViewStatsClient statsClient;
 
     private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
@@ -244,7 +259,7 @@ public class EventServiceImpl implements EventService {
                 List<ParticipationRequestDto> requests = requestRepository.findByEventId(eventId);
                 return RequestMapper.toRequestDtoList(requests);
             } else {
-                throw new AccesErrorException("Events has another initiatitor.");
+                throw new AccesErrorException("Events has another initiator.");
             }
         } else {
             throw new NotFoundException("Objects was not found.");
@@ -329,7 +344,7 @@ public class EventServiceImpl implements EventService {
             if (LocalDateTime.parse(event.getEventDate(), formatter).minusHours(1).isAfter(LocalDateTime.now())) {
                 eventFullDto.setEventDate(LocalDateTime.parse(event.getEventDate(), formatter));
             } else {
-                throw new UnsupportedStateException("Event date can't be erlier then now");
+                throw new UnsupportedStateException("Event date can't be earlier then now");
             }
         }
         if (event.getParticipantLimit() != null) {
@@ -364,6 +379,7 @@ public class EventServiceImpl implements EventService {
     }
 
     private EventFullDto updateEventFromUser(EventFullDto event, UpdateEventUserRequest updatedEvent) {
+        boolean oldPaid = event.isPaid();
         if (!event.getState().equals("PUBLISHED")) {
             if (updatedEvent.getTitle() != null) {
                 event.setTitle(updatedEvent.getTitle());
@@ -384,15 +400,8 @@ public class EventServiceImpl implements EventService {
             if (updatedEvent.getLocation() != null) {
                 event.setLocation(updatedEvent.getLocation());
             }
-            if ((updatedEvent.isPaid()) && (updatedEvent.getStateAction() != StateActionFromUser.CANCEL_REVIEW)) {
-                if (!event.isPaid()) {
-                    event.setPaid(updatedEvent.isPaid());
-                }
-            } else if ((!updatedEvent.isPaid()) &&
-                    (updatedEvent.getStateAction() != StateActionFromUser.CANCEL_REVIEW)) {
-                if (event.isPaid()) {
-                    event.setPaid(updatedEvent.isPaid());
-                }
+            if (updatedEvent.isPaid() != event.isPaid()) {
+                event.setPaid(updatedEvent.isPaid());
             }
             if (updatedEvent.isRequestModeration()) {
                 event.setRequestModeration(updatedEvent.isRequestModeration());
@@ -402,26 +411,29 @@ public class EventServiceImpl implements EventService {
                         .isAfter(LocalDateTime.now())) {
                     event.setEventDate(LocalDateTime.parse(updatedEvent.getEventDate(), formatter));
                 } else {
-                    throw new UnsupportedStateException("Event date can't be erlier then now");
+                    throw new UnsupportedStateException("Event date can't be earlier then now");
                 }
             }
             if (updatedEvent.getParticipantLimit() != null) {
                 event.setParticipantLimit(event.getParticipantLimit());
             }
             if (updatedEvent.getStateAction() != null) {
-                if (updatedEvent.getStateAction() == StateActionFromUser.SEND_TO_REVIEW) {
-                    if (event.getEventDate().minusHours(2).isAfter(LocalDateTime.now())) {
-                        event.setState("PENDING");
+                if (updatedEvent.getStateAction() != null) {
+                    if (updatedEvent.getStateAction() == StateActionFromUser.SEND_TO_REVIEW) {
+                        if (event.getEventDate().minusHours(2).isAfter(LocalDateTime.now())) {
+                            event.setState("PENDING");
+                        } else {
+                            throw new ValidateTimeEventException("Field: eventDate. Error: должно содержать дату, " +
+                                    "которая еще не наступила. Value: " + event.getEventDate().format(formatter));
+                        }
+                    } else if (updatedEvent.getStateAction() == StateActionFromUser.CANCEL_REVIEW) {
+                        event.setAvailable(false);
+                        event.setPaid(oldPaid);
+                        event.setState("CANCELED");
                     } else {
-                        throw new ValidateTimeEventException("Field: eventDate. Error: должно содержать дату, " +
-                                "которая еще не наступила. Value: " + event.getEventDate().format(formatter));
+                        throw new UnsupportedStateException("Unknown state stateAction. StateAction must be SEND_TO_REVIEW" +
+                                " or CANCEL_REVIEW");
                     }
-                } else if (updatedEvent.getStateAction() == StateActionFromUser.CANCEL_REVIEW) {
-                    event.setState("CANCELED");
-                    event.setAvailable(false);
-                } else {
-                    throw new UnsupportedStateException("Unknown state stateAction. StateAction must be SEND_TO_REVIEW" +
-                            " or CANCEL_REVIEW");
                 }
             }
             return eventRepository.save(event);
@@ -458,14 +470,14 @@ public class EventServiceImpl implements EventService {
         }
     }
 
-    private void getConfirmedRequestsToShotrDto(List<EventShortDto> events) {
+    private void getConfirmedRequestsToShortDto(List<EventShortDto> events) {
         for (EventShortDto event : events) {
             event.setConfirmedRequests(requestRepository.findByEventAndStatusConfirmed(event.getId()).size());
         }
     }
 
 
-    private void getHitsToShotrDto(List<EventShortDto> events, LocalDateTime start, LocalDateTime end) {
+    private void getHitsToShortDto(List<EventShortDto> events, LocalDateTime start, LocalDateTime end) {
         String[] uris = new String[events.size()];
         for (int i = 0; i < events.size(); i++) {
             uris[i] = "/events/" + events.get(i).getId();
@@ -545,8 +557,8 @@ public class EventServiceImpl implements EventService {
             idList.add(Integer.parseInt(eventsId[i]));
         }
         List<EventShortDto> events = EventMapper.toEventShortList(eventRepository.findByIds(idList));
-        getConfirmedRequestsToShotrDto(events);
-        getHitsToShotrDto(events, LocalDateTime.now().minusYears(10), LocalDateTime.now().plusYears(15));
+        getConfirmedRequestsToShortDto(events);
+        getHitsToShortDto(events, LocalDateTime.now().minusYears(10), LocalDateTime.now().plusYears(15));
         return events;
     }
 
