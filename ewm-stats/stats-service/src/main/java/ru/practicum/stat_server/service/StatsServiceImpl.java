@@ -35,7 +35,7 @@ public class StatsServiceImpl implements StatsService {
     public List<ViewStats> getStats(LocalDateTime start, LocalDateTime end, List<String> uris, boolean unique) {
         List<HitView> stats;
         if (start.isBefore(end)) {
-            if (uris.isEmpty()) {
+            if ((uris.isEmpty()) || (uris.get(0).equals("/events"))) {
                 if (unique) {
                     stats = statsRepository.getUniqueStats(start, end);
                 } else {
