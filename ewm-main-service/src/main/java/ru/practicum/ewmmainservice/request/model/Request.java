@@ -6,8 +6,9 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
-import ru.practicum.ewmmainservice.event.model.EventFullDto;
-import ru.practicum.ewmmainservice.user.model.UserDto;
+import ru.practicum.ewmmainservice.event.model.Event;
+import ru.practicum.ewmmainservice.request.dto.RequestStatus;
+import ru.practicum.ewmmainservice.user.model.User;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -18,7 +19,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Entity
 @Table(name = "requests")
-public class ParticipationRequestDto {
+public class Request {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -32,11 +33,11 @@ public class ParticipationRequestDto {
 
     @ManyToOne
     @JoinColumn(name = "event", referencedColumnName = "event_id")
-    private EventFullDto event;
+    private Event event;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "requester", referencedColumnName = "user_id")
-    private UserDto requester;
+    private User requester;
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)

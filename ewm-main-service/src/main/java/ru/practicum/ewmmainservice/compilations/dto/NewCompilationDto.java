@@ -1,30 +1,31 @@
-package ru.practicum.ewmmainservice.category.model;
+package ru.practicum.ewmmainservice.compilations.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
+import java.util.ArrayList;
+import java.util.List;
 
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Entity
-@Table(name = "categories")
-public class CategoryDto {
+public class NewCompilationDto {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "category_id")
     private Integer id;
 
     @NotBlank
     @Size(min = 1, max = 50)
-    @Column(nullable = false)
-    private String name;
+    private String title;
+
+    @Builder.Default
+    private List<Integer> events = new ArrayList<>();
+
+    @Builder.Default
+    private boolean pinned = false;
 
 }

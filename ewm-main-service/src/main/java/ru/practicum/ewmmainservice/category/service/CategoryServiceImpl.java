@@ -8,8 +8,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.ewmmainservice.category.mapper.CategoryMapper;
-import ru.practicum.ewmmainservice.category.model.CategoryDto;
-import ru.practicum.ewmmainservice.category.model.NewCategoryDto;
+import ru.practicum.ewmmainservice.category.model.Category;
+import ru.practicum.ewmmainservice.category.dto.NewCategoryDto;
 import ru.practicum.ewmmainservice.category.repository.CategoryJpaRepository;
 import ru.practicum.ewmmainservice.event.repository.EventJpaRepository;
 import ru.practicum.ewmmainservice.exception.AccesErrorException;
@@ -28,7 +28,7 @@ public class CategoryServiceImpl implements CategoryService {
     private final EventJpaRepository eventRepository;
 
     @Override
-    public CategoryDto createCategory(NewCategoryDto category) {
+    public Category createCategory(NewCategoryDto category) {
         try {
             return categoryRepository.save(CategoryMapper.newCategoryDtoToCategoryDto(category));
         } catch (RuntimeException exception) {
@@ -38,7 +38,7 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public void removeCategory(int categoryId) {
-        CategoryDto categoryDto = categoryRepository.findById(categoryId).orElseThrow(() ->
+        Category category = categoryRepository.findById(categoryId).orElseThrow(() ->
                 new NotFoundException("Category was not found"));
         if (eventRepository.findByCategoryId(categoryId).isEmpty()) {
             categoryRepository.deleteById(categoryId);
@@ -48,26 +48,26 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public List<CategoryDto> getCategories(int from, int size) {
+    public List<Category> getCategories(int from, int size) {
         Pageable page = PageRequest.of(from, size,
                 Sort.by(Sort.Direction.DESC, "id"));
         return categoryRepository.findAll(page).getContent();
     }
 
     @Override
-    public CategoryDto getCategoryById(int categoryId) {
+    public Category getCategoryById(int categoryId) {
         return categoryRepository.findById(categoryId).orElseThrow(() -> new NotFoundException("Category with id=" +
                 categoryId + " was not found"));
     }
 
     @Override
-    public CategoryDto updateCategory(int categoryId, CategoryDto updatedCategory) {
-        CategoryDto categoryDto = categoryRepository.findById(categoryId).orElseThrow(() ->
+    public Category updateCategory(int categoryId, Category updatedCategory) {
+        Category categoryDto = categoryRepository.findById(categoryId).orElseThrow(() ->
                 new NotFoundException("Categoty was not found."));
         if (updatedCategory.getName().equals(categoryDto.getName())) {
             return categoryDto;
         }
-        List<CategoryDto> categories = categoryRepository.findByName(updatedCategory.getName());
+        List<Category> categories = categoryRepository.findByName(updatedCategory.getName());
         if (categories.isEmpty()) {
             categoryDto.setName(updatedCategory.getName());
             return categoryRepository.save(categoryDto);

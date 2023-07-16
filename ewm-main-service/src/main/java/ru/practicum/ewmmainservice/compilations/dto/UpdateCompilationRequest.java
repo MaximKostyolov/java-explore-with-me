@@ -1,4 +1,4 @@
-package ru.practicum.ewmmainservice.compilations.model;
+package ru.practicum.ewmmainservice.compilations.dto;
 
 import lombok.*;
 

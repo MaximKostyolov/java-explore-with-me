@@ -1,29 +1,21 @@
 package ru.practicum.ewmmainservice.compilations.mapper;
 
 import ru.practicum.ewmmainservice.compilations.model.Compilation;
-import ru.practicum.ewmmainservice.compilations.model.CompilationDto;
-import ru.practicum.ewmmainservice.compilations.model.NewCompilationDto;
-import ru.practicum.ewmmainservice.event.model.EventShortDto;
+import ru.practicum.ewmmainservice.compilations.dto.CompilationDto;
+import ru.practicum.ewmmainservice.compilations.dto.NewCompilationDto;
+import ru.practicum.ewmmainservice.event.dto.EventShortDto;
+import ru.practicum.ewmmainservice.event.model.Event;
 
 import java.util.List;
 
 public class CompilationMapper {
 
-    public static Compilation toCompilation(NewCompilationDto newCompilationDto) {
-        StringBuilder events = new StringBuilder();
-        if (newCompilationDto.getEvents().size() == 1) {
-            events = new StringBuilder(newCompilationDto.getEvents().get(0).toString());
-        } else if (newCompilationDto.getEvents().size() > 1)  {
-            events = new StringBuilder(newCompilationDto.getEvents().get(0).toString());
-            for (int i = 1; i < newCompilationDto.getEvents().size(); i++) {
-                events.append(",").append(newCompilationDto.getEvents().get(i).toString());
-            }
-        }
+    public static Compilation toCompilation(NewCompilationDto newCompilationDto, List<Event> events) {
         return Compilation.builder()
                 .id(newCompilationDto.getId())
                 .title(newCompilationDto.getTitle())
                 .pinned(newCompilationDto.isPinned())
-                .events(events.toString())
+                .events(events)
                 .build();
     }
 

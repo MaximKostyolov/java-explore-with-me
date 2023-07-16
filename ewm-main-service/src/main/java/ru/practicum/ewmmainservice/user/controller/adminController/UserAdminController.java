@@ -4,7 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.ewmmainservice.user.model.UserDto;
+import ru.practicum.ewmmainservice.user.model.User;
 import ru.practicum.ewmmainservice.user.service.UserService;
 
 import javax.servlet.http.HttpServletRequest;
@@ -24,10 +24,10 @@ public class UserAdminController {
     }
 
     @GetMapping
-    public List<UserDto> getUsers(@RequestParam(required = false) Integer[] ids,
-                                  @RequestParam(defaultValue = "0") int from,
-                                  @RequestParam(defaultValue = "10") int size,
-                                  HttpServletRequest request) {
+    public List<User> getUsers(@RequestParam(required = false) List<Integer> ids,
+                               @RequestParam(defaultValue = "0") int from,
+                               @RequestParam(defaultValue = "10") int size,
+                               HttpServletRequest request) {
         log.info("Получен запрос к эндпоинту: '{} {}', Строка параметров запроса: '{}'",
                 request.getMethod(), request.getRequestURI(), request.getQueryString());
         return userService.getUsers(ids, from, size);
@@ -35,7 +35,7 @@ public class UserAdminController {
 
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping
-    public UserDto create(@Valid @RequestBody UserDto user, HttpServletRequest request) {
+    public User create(@Valid @RequestBody User user, HttpServletRequest request) {
         log.info("Получен запрос к эндпоинту: '{} {}', Строка параметров запроса: '{}'",
                 request.getMethod(), request.getRequestURI(), request.getQueryString());
         return userService.createUser(user);

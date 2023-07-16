@@ -1,4 +1,4 @@
-package ru.practicum.ewmmainservice.event.model;
+package ru.practicum.ewmmainservice.event.model.enums;
 
 public enum State {
 

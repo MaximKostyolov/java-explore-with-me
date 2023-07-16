@@ -1,9 +1,11 @@
-package ru.practicum.ewmmainservice.event.model;
+package ru.practicum.ewmmainservice.event.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import ru.practicum.ewmmainservice.event.model.location.Location;
+import ru.practicum.ewmmainservice.event.model.enums.StateActionFromUser;
 
 import javax.validation.constraints.Size;
 

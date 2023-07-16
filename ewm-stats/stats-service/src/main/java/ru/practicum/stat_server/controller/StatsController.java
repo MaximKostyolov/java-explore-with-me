@@ -18,7 +18,7 @@ import java.util.List;
 
 @Slf4j
 @RestController
-@RequestMapping(path = "")
+@RequestMapping(path = "/stats")
 public class StatsController {
     private final StatsService statsService;
 
@@ -27,15 +27,7 @@ public class StatsController {
         this.statsService = statsService;
     }
 
-    @ResponseStatus(HttpStatus.CREATED)
-    @PostMapping("/hit")
-    public EndpointHit createHit(HttpServletRequest request, @RequestBody EndpointHit endpointHit) {
-        log.info("Получен запрос к эндпоинту: '{} {}', Строка параметров запроса: '{}'",
-                request.getMethod(), request.getRequestURI(), request.getQueryString());
-        return statsService.createHit(request, endpointHit);
-    }
-
-    @GetMapping("/stats")
+    @GetMapping
     public List<ViewStats> getStats(@RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime start,
                                     @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime end,
                                     @RequestParam(required = false) String[] uris,

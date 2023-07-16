@@ -1,10 +1,10 @@
-package ru.practicum.ewmmainservice.compilations.model;
+package ru.practicum.ewmmainservice.compilations.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import ru.practicum.ewmmainservice.event.model.EventShortDto;
+import ru.practicum.ewmmainservice.event.dto.EventShortDto;
 
 @Data
 @Builder

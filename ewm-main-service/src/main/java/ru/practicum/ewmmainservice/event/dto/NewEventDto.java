@@ -1,8 +1,9 @@
-package ru.practicum.ewmmainservice.event.model;
+package ru.practicum.ewmmainservice.event.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
 import org.springframework.format.annotation.DateTimeFormat;
+import ru.practicum.ewmmainservice.event.model.location.Location;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;

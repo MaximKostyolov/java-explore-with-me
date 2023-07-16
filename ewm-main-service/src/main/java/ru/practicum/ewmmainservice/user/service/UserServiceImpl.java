@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.ewmmainservice.exception.AccesErrorException;
 import ru.practicum.ewmmainservice.exception.NotFoundException;
-import ru.practicum.ewmmainservice.user.model.UserDto;
+import ru.practicum.ewmmainservice.user.model.User;
 import ru.practicum.ewmmainservice.user.repository.UserJpaRepository;
 
 import java.util.Arrays;
@@ -24,7 +24,7 @@ public class UserServiceImpl implements UserService {
     private final UserJpaRepository userRepository;
 
     @Override
-    public UserDto createUser(UserDto user) {
+    public User createUser(User user) {
         try {
             return userRepository.save(user);
         } catch (RuntimeException exception) {
@@ -42,13 +42,15 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<UserDto> getUsers(Integer[] ids, int from, int size) {
-        Pageable page = PageRequest.of(from, size,
-                Sort.by(Sort.Direction.ASC, "user_id"));
+    public List<User> getUsers(List<Integer> ids, int from, int size) {
         if (ids == null) {
-            return userRepository.findAllUsers(page);
+            Pageable page = PageRequest.of(from, size,
+                    Sort.by(Sort.Direction.ASC, "id"));
+            return userRepository.findAll(page).getContent();
         } else {
-            return userRepository.findUsersByIds(Arrays.asList(ids), page);
+            Pageable page = PageRequest.of(from, size,
+                    Sort.by(Sort.Direction.ASC, "user_id"));
+            return userRepository.findUsersByIds(ids, page);
         }
     }
 

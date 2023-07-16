@@ -1,4 +1,4 @@
-package ru.practicum.ewmmainservice.request.model;
+package ru.practicum.ewmmainservice.request.dto;
 
 public enum RequestStatus {
 

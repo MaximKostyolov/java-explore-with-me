@@ -4,8 +4,11 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import ru.practicum.ewmmainservice.event.model.Event;
 
 import javax.persistence.*;
+import java.util.List;
+import java.util.Set;
 
 @Data
 @Builder
@@ -23,8 +26,12 @@ public class Compilation {
     @Column(nullable = false)
     private String title;
 
-    @Column
-    private String events;
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+            name = "compilations_events",
+            joinColumns = @JoinColumn(name = "compilation_id"),
+            inverseJoinColumns = @JoinColumn(name = "event_id"))
+    List<Event> events;
 
     @Column(name = "pinned", columnDefinition = "boolean default false")
     private boolean pinned;

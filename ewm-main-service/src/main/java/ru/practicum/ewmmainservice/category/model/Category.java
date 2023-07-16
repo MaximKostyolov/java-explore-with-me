@@ -1,4 +1,4 @@
-package ru.practicum.ewmmainservice.event.model;
+package ru.practicum.ewmmainservice.category.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -6,24 +6,25 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Size;
 
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "locations")
-public class Location {
+@Table(name = "categories")
+public class Category {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "location_id")
+    @Column(name = "category_id")
     private Integer id;
 
+    @NotBlank
+    @Size(min = 1, max = 50)
     @Column(nullable = false)
-    private double lat;
-
-    @Column(nullable = false)
-    private double lon;
+    private String name;
 
 }

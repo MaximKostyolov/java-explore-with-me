@@ -4,17 +4,17 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.practicum.ewmmainservice.event.model.EventFullDto;
+import ru.practicum.ewmmainservice.event.model.Event;
 import ru.practicum.ewmmainservice.event.repository.EventJpaRepository;
 import ru.practicum.ewmmainservice.exception.AccesErrorException;
 import ru.practicum.ewmmainservice.exception.NotFoundException;
 import ru.practicum.ewmmainservice.exception.RequestErrorException;
 import ru.practicum.ewmmainservice.request.mapper.RequestMapper;
-import ru.practicum.ewmmainservice.request.model.ParticipationRequestDto;
-import ru.practicum.ewmmainservice.request.model.RequestDto;
-import ru.practicum.ewmmainservice.request.model.RequestStatus;
+import ru.practicum.ewmmainservice.request.model.Request;
+import ru.practicum.ewmmainservice.request.dto.RequestDto;
+import ru.practicum.ewmmainservice.request.dto.RequestStatus;
 import ru.practicum.ewmmainservice.request.repository.RequestJpaRepository;
-import ru.practicum.ewmmainservice.user.model.UserDto;
+import ru.practicum.ewmmainservice.user.model.User;
 import ru.practicum.ewmmainservice.user.repository.UserJpaRepository;
 import ru.practicum.ewmmainservice.validator.Validator;
 
@@ -47,12 +47,12 @@ public class RequestServiceImpl implements RequestService {
     public RequestDto createRequest(int userId, int eventId) {
         if (validator.validateUser(userId, userRepository)) {
             if (validator.validateEvent(eventId, eventRepository)) {
-                UserDto user = userRepository.findById(userId).get();
-                EventFullDto event = eventRepository.findById(eventId).get();
+                User user = userRepository.findById(userId).get();
+                Event event = eventRepository.findById(eventId).get();
                 if (event.getInitiator().getId() != userId) {
                     if ((event.getState().equals("PUBLISHED")) && (event.isAvailable())) {
                         if (!validator.validateRequest(userId, eventId, requestRepository)) {
-                            ParticipationRequestDto requestDto = ParticipationRequestDto.builder()
+                            Request requestDto = Request.builder()
                                     .created(LocalDateTime.parse(LocalDateTime.now().format(formatter), formatter))
                                     .requester(user)
                                     .event(event)
@@ -92,7 +92,7 @@ public class RequestServiceImpl implements RequestService {
     public RequestDto cancelRequest(int userId, Integer requestId) {
         if (validator.validateUser(userId, userRepository)) {
             if (validator.validateRequest(requestId, requestRepository)) {
-                ParticipationRequestDto requestDto = requestRepository.findById(requestId).get();
+                Request requestDto = requestRepository.findById(requestId).get();
                 if ((requestDto.getStatus() != RequestStatus.CANCELED) ||
                         (requestDto.getStatus() != RequestStatus.REJECTED)) {
                     requestDto.setStatus(RequestStatus.CANCELED);

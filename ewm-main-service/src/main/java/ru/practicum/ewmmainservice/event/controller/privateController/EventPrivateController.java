@@ -4,14 +4,15 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.ewmmainservice.event.model.EventFullDto;
-import ru.practicum.ewmmainservice.event.model.EventShortDto;
-import ru.practicum.ewmmainservice.event.model.NewEventDto;
-import ru.practicum.ewmmainservice.event.model.UpdateEventUserRequest;
+import ru.practicum.ewmmainservice.event.dto.EventShortDto;
+import ru.practicum.ewmmainservice.event.dto.NewEventDto;
+import ru.practicum.ewmmainservice.event.dto.UpdateEventUserRequest;
+import ru.practicum.ewmmainservice.event.model.Event;
 import ru.practicum.ewmmainservice.event.service.EventService;
-import ru.practicum.ewmmainservice.request.model.EventRequestStatusUpdateRequest;
-import ru.practicum.ewmmainservice.request.model.EventRequestStatusUpdateResult;
-import ru.practicum.ewmmainservice.request.model.RequestDto;
+import ru.practicum.ewmmainservice.request.dto.EventRequestStatusUpdateRequest;
+import ru.practicum.ewmmainservice.request.dto.EventRequestStatusUpdateResult;
+import ru.practicum.ewmmainservice.request.dto.RequestDto;
+
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
@@ -40,9 +41,9 @@ public class EventPrivateController {
     }
 
     @GetMapping("/{eventId}")
-    public EventFullDto getEventFromInitiator(@PathVariable int userId,
-                                              @PathVariable int eventId,
-                                              HttpServletRequest request) {
+    public Event getEventFromInitiator(@PathVariable int userId,
+                                       @PathVariable int eventId,
+                                       HttpServletRequest request) {
         log.info("Получен запрос к эндпоинту: '{} {}', Строка параметров запроса: '{}'",
                 request.getMethod(), request.getRequestURI(), request.getQueryString());
         return eventService.getEventFromInitiator(userId, eventId, request);
@@ -50,7 +51,7 @@ public class EventPrivateController {
 
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping
-    public EventFullDto createEvent(@PathVariable int userId,
+    public Event createEvent(@PathVariable int userId,
                                     @Valid @RequestBody NewEventDto event,
                                     HttpServletRequest request) {
         log.info("Получен запрос к эндпоинту: '{} {}', Строка параметров запроса: '{}'",
@@ -59,7 +60,7 @@ public class EventPrivateController {
     }
 
     @PatchMapping("/{eventId}")
-    public EventFullDto updateEvent(@PathVariable int userId,
+    public Event updateEvent(@PathVariable int userId,
                                     @PathVariable int eventId,
                                     @Valid @RequestBody UpdateEventUserRequest updatedEvent,
                                     HttpServletRequest request) {

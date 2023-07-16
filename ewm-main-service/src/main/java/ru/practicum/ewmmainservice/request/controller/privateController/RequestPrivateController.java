@@ -4,7 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.ewmmainservice.request.model.RequestDto;
+import ru.practicum.ewmmainservice.request.dto.RequestDto;
 import ru.practicum.ewmmainservice.request.service.RequestService;
 
 import javax.servlet.http.HttpServletRequest;
@@ -24,7 +24,7 @@ public class RequestPrivateController {
 
     @GetMapping
     public List<RequestDto> getRequests(@PathVariable int userId,
-                                                     HttpServletRequest request) {
+                                        HttpServletRequest request) {
         log.info("Получен запрос к эндпоинту: '{} {}', Строка параметров запроса: '{}'",
                 request.getMethod(), request.getRequestURI(), request.getQueryString());
         return requestService.getRequests(userId);

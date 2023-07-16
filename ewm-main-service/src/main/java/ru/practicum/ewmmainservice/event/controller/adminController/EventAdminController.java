@@ -3,9 +3,9 @@ package ru.practicum.ewmmainservice.event.controller.adminController;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.ewmmainservice.event.model.EventDto;
-import ru.practicum.ewmmainservice.event.model.EventFullDto;
-import ru.practicum.ewmmainservice.event.model.UpdateEventAdminRequest;
+import ru.practicum.ewmmainservice.event.dto.EventDto;
+import ru.practicum.ewmmainservice.event.model.Event;
+import ru.practicum.ewmmainservice.event.dto.UpdateEventAdminRequest;
 import ru.practicum.ewmmainservice.event.service.EventService;
 
 import javax.servlet.http.HttpServletRequest;
@@ -39,9 +39,9 @@ public class EventAdminController {
     }
 
     @PatchMapping("/{eventId}")
-    public EventFullDto updateEventFromAdmin(@PathVariable int eventId,
-                                             @Valid @RequestBody UpdateEventAdminRequest event,
-                                             HttpServletRequest request) {
+    public Event updateEventFromAdmin(@PathVariable int eventId,
+                                      @Valid @RequestBody UpdateEventAdminRequest event,
+                                      HttpServletRequest request) {
         log.info("Получен запрос к эндпоинту: '{} {}', Строка параметров запроса: '{}'",
                 request.getMethod(), request.getRequestURI(), request.getQueryString());
         return eventService.updateEvent(eventId, event, request);

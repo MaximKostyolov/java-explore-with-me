@@ -1,9 +1,12 @@
 package ru.practicum.ewmmainservice.event.mapper;
 
 import org.springframework.stereotype.Service;
-import ru.practicum.ewmmainservice.category.model.CategoryDto;
+import ru.practicum.ewmmainservice.category.model.Category;
+import ru.practicum.ewmmainservice.event.dto.EventDto;
+import ru.practicum.ewmmainservice.event.dto.EventShortDto;
+import ru.practicum.ewmmainservice.event.dto.NewEventDto;
 import ru.practicum.ewmmainservice.event.model.*;
-import ru.practicum.ewmmainservice.user.model.UserDto;
+import ru.practicum.ewmmainservice.user.model.User;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -15,11 +18,11 @@ public class EventMapper {
 
     private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
-    public static EventFullDto newEventDtoToEventFullDto(NewEventDto event, CategoryDto categoryDto,
-                                                         UserDto initiator) {
-        return EventFullDto.builder()
+    public static Event newEventDtoToEventFullDto(NewEventDto event, Category category,
+                                                  User initiator) {
+        return Event.builder()
                 .annotation(event.getAnnotation())
-                .category(categoryDto)
+                .category(category)
                 .eventDate(LocalDateTime.parse(event.getEventDate(), formatter))
                 .createdOn(LocalDateTime.parse(LocalDateTime.now().format(formatter), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")))
                 .description(event.getDescription())
@@ -34,15 +37,15 @@ public class EventMapper {
                 .build();
     }
 
-    public static List<EventShortDto> toEventShortList(List<EventFullDto> eventList) {
+    public static List<EventShortDto> toEventShortList(List<Event> eventList) {
         List<EventShortDto> eventShortDtoList = new ArrayList<>();
-        for (EventFullDto eventFullDto : eventList) {
+        for (Event eventFullDto : eventList) {
             eventShortDtoList.add(toShortDto(eventFullDto));
         }
         return eventShortDtoList;
     }
 
-    private static EventShortDto toShortDto(EventFullDto eventFullDto) {
+    private static EventShortDto toShortDto(Event eventFullDto) {
         return EventShortDto.builder()
                 .id(eventFullDto.getId())
                 .annotation(eventFullDto.getAnnotation())
@@ -58,7 +61,7 @@ public class EventMapper {
                 .build();
     }
 
-    public static EventDto toEventDto(EventFullDto eventFullDto) {
+    public static EventDto toEventDto(Event eventFullDto) {
         return EventDto.builder()
                 .id(eventFullDto.getId())
                 .title(eventFullDto.getTitle())
@@ -79,9 +82,9 @@ public class EventMapper {
                 .build();
     }
 
-    public static List<EventDto> toEventDtoList(List<EventFullDto> eventsFull) {
+    public static List<EventDto> toEventDtoList(List<Event> eventsFull) {
         List<EventDto> eventDtoList = new ArrayList<>();
-        for (EventFullDto eventFullDto : eventsFull) {
+        for (Event eventFullDto : eventsFull) {
             eventDtoList.add(toEventDto(eventFullDto));
         }
         return eventDtoList;

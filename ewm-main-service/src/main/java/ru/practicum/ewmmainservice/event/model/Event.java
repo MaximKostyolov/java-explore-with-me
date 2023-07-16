@@ -5,9 +5,11 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.Formula;
 import org.springframework.format.annotation.DateTimeFormat;
-import ru.practicum.ewmmainservice.category.model.CategoryDto;
-import ru.practicum.ewmmainservice.user.model.UserDto;
+import ru.practicum.ewmmainservice.category.model.Category;
+import ru.practicum.ewmmainservice.event.model.location.Location;
+import ru.practicum.ewmmainservice.user.model.User;
 
 
 import javax.persistence.*;
@@ -19,7 +21,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Entity
 @Table(name = "events")
-public class EventFullDto {
+public class Event {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -37,11 +39,11 @@ public class EventFullDto {
 
     @ManyToOne(cascade = {CascadeType.ALL})
     @JoinColumn(name = "category_id", referencedColumnName = "category_id")
-    private CategoryDto category;
+    private Category category;
 
     @ManyToOne
     @JoinColumn(name = "initiator", referencedColumnName = "user_id")
-    private UserDto initiator;
+    private User initiator;
 
     @ManyToOne(cascade = {CascadeType.ALL})
     @JoinColumn(name = "location_id", referencedColumnName = "location_id")

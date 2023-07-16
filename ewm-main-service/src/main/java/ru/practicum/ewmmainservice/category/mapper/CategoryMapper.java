@@ -1,12 +1,12 @@
 package ru.practicum.ewmmainservice.category.mapper;
 
-import ru.practicum.ewmmainservice.category.model.CategoryDto;
-import ru.practicum.ewmmainservice.category.model.NewCategoryDto;
+import ru.practicum.ewmmainservice.category.model.Category;
+import ru.practicum.ewmmainservice.category.dto.NewCategoryDto;
 
 public class CategoryMapper {
 
-    public static CategoryDto newCategoryDtoToCategoryDto(NewCategoryDto newCategoryDto) {
-        return CategoryDto.builder()
+    public static Category newCategoryDtoToCategoryDto(NewCategoryDto newCategoryDto) {
+        return Category.builder()
                 .name(newCategoryDto.getName())
                 .build();
     }

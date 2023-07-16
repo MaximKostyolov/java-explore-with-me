@@ -1,4 +1,4 @@
-package ru.practicum.ewmmainservice.event.model;
+package ru.practicum.ewmmainservice.event.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
@@ -6,8 +6,9 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
-import ru.practicum.ewmmainservice.category.model.CategoryDto;
-import ru.practicum.ewmmainservice.user.model.UserDto;
+import ru.practicum.ewmmainservice.category.model.Category;
+import ru.practicum.ewmmainservice.event.model.location.Location;
+import ru.practicum.ewmmainservice.user.model.User;
 
 import java.time.LocalDateTime;
 import java.util.Comparator;
@@ -26,9 +27,9 @@ public class EventDto implements Comparable<EventDto> {
 
     private String description;
 
-    private CategoryDto category;
+    private Category category;
 
-    private UserDto initiator;
+    private User initiator;
 
     private Location location;
 

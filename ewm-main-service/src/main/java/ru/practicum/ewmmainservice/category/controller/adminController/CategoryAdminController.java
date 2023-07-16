@@ -4,8 +4,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.ewmmainservice.category.model.CategoryDto;
-import ru.practicum.ewmmainservice.category.model.NewCategoryDto;
+import ru.practicum.ewmmainservice.category.model.Category;
+import ru.practicum.ewmmainservice.category.dto.NewCategoryDto;
 import ru.practicum.ewmmainservice.category.service.CategoryService;
 
 import javax.servlet.http.HttpServletRequest;
@@ -25,7 +25,7 @@ public class CategoryAdminController {
 
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping
-    public CategoryDto create(@Valid @RequestBody NewCategoryDto category, HttpServletRequest request) {
+    public Category create(@Valid @RequestBody NewCategoryDto category, HttpServletRequest request) {
         log.info("Получен запрос к эндпоинту: '{} {}', Строка параметров запроса: '{}'",
                 request.getMethod(), request.getRequestURI(), request.getQueryString());
         return categoryService.createCategory(category);
@@ -40,9 +40,9 @@ public class CategoryAdminController {
     }
 
     @PatchMapping("/{categoryId}")
-    public CategoryDto updateCategory(@PathVariable int categoryId,
-                                      @Valid @RequestBody CategoryDto updatedCategory,
-                                       HttpServletRequest request) {
+    public Category updateCategory(@PathVariable int categoryId,
+                                   @Valid @RequestBody Category updatedCategory,
+                                   HttpServletRequest request) {
         log.info("Получен запрос к эндпоинту: '{} {}', Строка параметров запроса: '{}'",
                 request.getMethod(), request.getRequestURI(), request.getQueryString());
         return categoryService.updateCategory(categoryId, updatedCategory);

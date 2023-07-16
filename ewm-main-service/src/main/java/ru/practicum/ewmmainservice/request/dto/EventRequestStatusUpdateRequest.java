@@ -1,4 +1,4 @@
-package ru.practicum.ewmmainservice.request.model;
+package ru.practicum.ewmmainservice.request.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

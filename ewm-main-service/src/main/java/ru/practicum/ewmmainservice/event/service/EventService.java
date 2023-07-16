@@ -1,11 +1,14 @@
 package ru.practicum.ewmmainservice.event.service;
 
-import ru.practicum.ewmmainservice.event.model.*;
-import ru.practicum.ewmmainservice.request.model.EventRequestStatusUpdateRequest;
-import ru.practicum.ewmmainservice.request.model.EventRequestStatusUpdateResult;
-import ru.practicum.ewmmainservice.request.model.RequestDto;
+import ru.practicum.ewmmainservice.event.dto.*;
+import ru.practicum.ewmmainservice.event.model.Event;
+import ru.practicum.ewmmainservice.request.dto.EventRequestStatusUpdateRequest;
+import ru.practicum.ewmmainservice.request.dto.EventRequestStatusUpdateResult;
+import ru.practicum.ewmmainservice.request.dto.RequestDto;
+
 
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
 import java.util.List;
 
 public interface EventService {
@@ -18,15 +21,15 @@ public interface EventService {
     List<EventDto> getEventsToAdmin(List<Integer> users, List<String> states, List<Integer> categories, String rangeStart,
                                     String rangeEnd, int from, int size, HttpServletRequest request);
 
-    EventFullDto updateEvent(int eventId, UpdateEventAdminRequest event, HttpServletRequest request);
+    Event updateEvent(int eventId, @Valid UpdateEventAdminRequest event, HttpServletRequest request);
 
     List<EventShortDto> getUserEvents(int userId, int from, int size, HttpServletRequest request);
 
-    EventFullDto getEventFromInitiator(int userId, int eventId, HttpServletRequest request);
+    Event getEventFromInitiator(int userId, int eventId, HttpServletRequest request);
 
-    EventFullDto createEvent(int userId, NewEventDto event);
+    Event createEvent(int userId, NewEventDto event);
 
-    EventFullDto updateFromUserEvent(int userId, int eventId, UpdateEventUserRequest updatedEvent);
+    Event updateFromUserEvent(int userId, int eventId, UpdateEventUserRequest updatedEvent);
 
     List<RequestDto> getRequests(int userId, int eventId);
 

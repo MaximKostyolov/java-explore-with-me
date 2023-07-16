@@ -1,10 +1,9 @@
-package ru.practicum.ewmmainservice.request.model;
+package ru.practicum.ewmmainservice.request.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import ru.practicum.ewmmainservice.event.model.EventFullDto;
 
 import java.time.LocalDateTime;
 
@@ -12,13 +11,13 @@ import java.time.LocalDateTime;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class RequestDtoWithoutUser {
+public class RequestDto {
 
     private Integer id;
 
     private LocalDateTime created;
 
-    private EventFullDto event;
+    private Integer event;
 
     private Integer requester;
 

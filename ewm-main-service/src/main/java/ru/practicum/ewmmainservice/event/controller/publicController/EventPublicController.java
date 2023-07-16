@@ -3,7 +3,7 @@ package ru.practicum.ewmmainservice.event.controller.publicController;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.ewmmainservice.event.model.EventDto;
+import ru.practicum.ewmmainservice.event.dto.EventDto;
 import ru.practicum.ewmmainservice.event.service.EventService;
 
 import javax.servlet.http.HttpServletRequest;
