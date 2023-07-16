@@ -12,7 +12,6 @@ import ru.practicum.ewmmainservice.exception.NotFoundException;
 import ru.practicum.ewmmainservice.user.model.User;
 import ru.practicum.ewmmainservice.user.repository.UserJpaRepository;
 
-import java.util.Arrays;
 import java.util.List;
 
 @Slf4j

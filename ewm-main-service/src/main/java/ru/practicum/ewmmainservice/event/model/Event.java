@@ -5,7 +5,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.Formula;
 import org.springframework.format.annotation.DateTimeFormat;
 import ru.practicum.ewmmainservice.category.model.Category;
 import ru.practicum.ewmmainservice.event.model.location.Location;
