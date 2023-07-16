@@ -304,7 +304,7 @@ public class EventServiceImpl implements EventService {
                         requestDto.setStatus(RequestStatus.CONFIRMED);
                         requestRepository.save(requestDto);
                         if (eventFullDto.getParticipantLimit() != 0) {
-                            if (countConfirmedRequest.get(eventFullDto) != null) {
+                            if (countConfirmedRequest.get(eventFullDto.getId()) != null) {
                                 if (eventFullDto.getParticipantLimit().equals(countConfirmedRequest.get(eventFullDto) + 1)) {
                                     eventFullDto.setAvailable(false);
                                     eventRepository.save(eventFullDto);
