@@ -1,6 +1,5 @@
 package ru.practicum.stat_server.mapper;
 
-
 import ru.practicum.dto.EndpointHit;
 import ru.practicum.dto.ViewStats;
 import ru.practicum.stat_server.hitwiew.HitView;
