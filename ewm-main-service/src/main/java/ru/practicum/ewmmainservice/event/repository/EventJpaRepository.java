@@ -45,6 +45,7 @@ public interface EventJpaRepository extends JpaRepository<Event, Integer> {
     List<Event> findByIds(List<Integer> eventsId);
 
     @Query(value = "select * from events e " +
-            "where e.initiator in ?1", nativeQuery = true)
+            "where e.initiator in ?1 " +
+            "and e.state = 'PUBLISHED'", nativeQuery = true)
     List<Event> findByInitiatorIds(List<Integer> followingIds, Pageable page);
 }
