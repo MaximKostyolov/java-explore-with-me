@@ -75,7 +75,7 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("User was not found"));
         User following = userRepository.findById(followingId)
                 .orElseThrow(() -> new NotFoundException("User was not found"));
-        List <User> followings = user.getFollowings();
+        List<User> followings = user.getFollowings();
         if (followings.contains(following)) {
             followings.remove(following);
             user.setFollowings(followings);
