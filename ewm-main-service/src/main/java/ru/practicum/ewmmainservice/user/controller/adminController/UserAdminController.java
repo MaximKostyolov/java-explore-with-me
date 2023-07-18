@@ -33,6 +33,13 @@ public class UserAdminController {
         return userService.getUsers(ids, from, size);
     }
 
+    @GetMapping("/{userId}")
+    public User getUserById(@PathVariable int userId, HttpServletRequest request) {
+        log.info("Получен запрос к эндпоинту: '{} {}', Строка параметров запроса: '{}'",
+                request.getMethod(), request.getRequestURI(), request.getQueryString());
+        return userService.getUserById(userId);
+    }
+
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping
     public User create(@Valid @RequestBody User user, HttpServletRequest request) {

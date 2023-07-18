@@ -36,4 +36,5 @@ public interface EventService {
     EventRequestStatusUpdateResult updateRequests(int userId, int eventId,
                                                   EventRequestStatusUpdateRequest eventRequests);
 
+    List<EventShortDto> getFollowingEvents(int userId, int from, int size, HttpServletRequest request);
 }

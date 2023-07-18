@@ -88,4 +88,14 @@ public class EventPrivateController {
         return eventService.updateRequests(userId, eventId, eventRequests);
     }
 
+    @GetMapping("/following")
+    public List<EventShortDto> getFollowingEvents(@PathVariable int userId,
+                                             @RequestParam(defaultValue = "0") int from,
+                                             @RequestParam(defaultValue = "10") int size,
+                                             HttpServletRequest request) {
+        log.info("Получен запрос к эндпоинту: '{} {}', Строка параметров запроса: '{}'",
+                request.getMethod(), request.getRequestURI(), request.getQueryString());
+        return eventService.getFollowingEvents(userId, from, size, request);
+    }
+
 }
