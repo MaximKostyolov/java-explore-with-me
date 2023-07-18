@@ -73,7 +73,8 @@ public class UserServiceImpl implements UserService {
     @Override
     public void removeFolowing(int userId, int followingId) {
         User user = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("User was not found"));
-        User following = userRepository.findById(followingId).orElseThrow(() -> new NotFoundException("User was not found"));
+        User following = userRepository.findById(followingId)
+                .orElseThrow(() -> new NotFoundException("User was not found"));
         List <User> followings = user.getFollowings();
         if (followings.contains(following)) {
             followings.remove(following);
