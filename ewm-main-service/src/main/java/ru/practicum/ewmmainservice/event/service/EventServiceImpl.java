@@ -336,6 +336,27 @@ public class EventServiceImpl implements EventService {
         return requestStatusResult;
     }
 
+    @Override
+    public List<EventShortDto> getFollowingEvents(int userId, int from, int size, HttpServletRequest request) {
+        Pageable page = PageRequest.of(from, size,
+                Sort.by(Sort.Direction.DESC, "event_id"));
+        User user = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("User was not found"));
+        List<User> followings = user.getFollowings();
+        List<Integer> followingIds = new ArrayList<>();
+        for (User following : followings) {
+            followingIds.add(following.getId());
+        }
+        if (!followingIds.isEmpty()) {
+            List<Event> followingEvents = eventRepository.findByInitiatorIds(followingIds, page);
+            List<EventShortDto> events = EventMapper.toEventShortList(followingEvents);
+            getConfirmedRequestsToShortDto(events);
+            getHitsToShortDto(events, LocalDateTime.now().minusYears(5), LocalDateTime.now());
+            return events;
+        } else {
+            return new ArrayList<>();
+        }
+    }
+
     public List<EventShortDto> getEventsByIds(List<Integer> eventsId) {
         List<EventShortDto> events = EventMapper.toEventShortList(eventRepository.findByIds(eventsId));
         getConfirmedRequestsToShortDto(events);

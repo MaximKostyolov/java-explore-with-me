@@ -43,9 +43,9 @@ public class CompilationAdminController {
     }
 
     @PatchMapping("/{compId}")
-    public CompilationDto updateCategory(@PathVariable int compId,
-                                      @Valid @RequestBody UpdateCompilationRequest newCompilationDto,
-                                      HttpServletRequest request) {
+    public CompilationDto updateCompilation(@PathVariable int compId,
+                                            @Valid @RequestBody UpdateCompilationRequest newCompilationDto,
+                                            HttpServletRequest request) {
         log.info("Получен запрос к эндпоинту: '{} {}', Строка параметров запроса: '{}'",
                 request.getMethod(), request.getRequestURI(), request.getQueryString());
         return compilationService.updateCompilation(compId, newCompilationDto);
